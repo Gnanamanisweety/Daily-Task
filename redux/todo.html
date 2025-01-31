@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redux To-Do List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.1.2/redux.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // Redux Actions
+    const addTodo = (task) => ({ type: 'ADD_TODO', payload: task });
+    const removeTodo = (index) => ({ type: 'REMOVE_TODO', payload: index });
+
+    // Redux Reducer
+    const todoReducer = (state = [], action) => {
+      switch (action.type) {
+        case 'ADD_TODO':
+          return [...state, action.payload];
+        case 'REMOVE_TODO':
+          return state.filter((_, index) => index !== action.payload);
+        default:
+          return state;
+      }
+    };
+
+    // Redux Store
+    const store = Redux.createStore(todoReducer);
+
+    function TodoApp() {
+      const [task, setTask] = React.useState("");
+      const todos = store.getState();
+
+      const handleAddTodo = () => {
+        if (task.trim()) {
+          store.dispatch(addTodo(task));
+          setTask(""); 
+        }
+      };
+
+      const handleRemoveTodo = (index) => {
+        store.dispatch(removeTodo(index));
+      };
+
+      return (
+        <div>
+          <h1>Redux To-Do List</h1>
+          <input
+            type="text"
+            value={task}
+            onChange={(e) => setTask(e.target.value)}
+          />
+          <button onClick={handleAddTodo}>Add</button>
+
+          <ul>
+            {todos.map((todo, index) => (
+              <li key={index}>
+                {todo}
+                <button onClick={() => handleRemoveTodo(index)}>Remove</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
+    const render = () => {
+      ReactDOM.render(<TodoApp />, document.getElementById("root"));
+    };
+
+    render();
+    store.subscribe(render);
+  </script>
+
+</body>
+</html>
